@@ -1,0 +1,71 @@
+
+apiVersion: {{ template "cronjob.apiVersion" . }}
+kind: CronJob
+metadata:
+  name: {{ template "argocd-scripts.fullname" . }}
+spec:
+  schedule: "{{ .Values.cronjob.schedule }}"
+  jobTemplate:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "argocd-scripts.labels" . | nindent 12 }}
+    spec:
+      template:
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: Never
+          serviceAccountName: {{ include "argocd-scripts.serviceAccountName" . }}
+          {{- if .Values.securityContext }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{ end }}
+          containers:
+            - name: {{ .Chart.Name }}
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              # command: ['/kubexit/kubexit', 'yarn']
+              env:
+                - name: ACCESS_TYPE
+                  value: {{ ternary "cluster" "namespace" .Values.rbac.useClusterRole }}
+                - name: NAMESPACE
+                  value: {{ .Release.Namespace }}
+                - name: ARGO_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
+                      key: {{ .Values.existingSecret.argoURLSecretKey | default "argoURL" }}
+                - name: ARGO_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
+                      key: {{ .Values.existingSecret.argoUserSecretKey | default "argoUser" }}
+                - name: ARGO_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
+                      key: {{ .Values.existingSecret.argoPasswordSecretKey | default "argoPassword" }}
+                - name: JUPITERONE_ACCOUNT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
+                      key: {{ .Values.existingSecret.jupiteroneAccountIdSecretKey | default "jupiteroneAccountId" }}
+                - name: JUPITERONE_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
+                      key: {{ .Values.existingSecret.jupiteroneApiKeySecretKey | default "jupiteroneApiKey" }}
+                - name: LOAD_KUBERNETES_CONFIG_FROM_DEFAULT
+                  value: 'false'
+              args:
+                - "$(ARGO_URL)"
+                - "$(ARGO_USER)"
+                - "$(ARGO_PASSWORD)" 
+                - "$(JUPITERONE_ACCOUNT_ID)"
+                - "$(JUPITERONE_API_KEY)" 

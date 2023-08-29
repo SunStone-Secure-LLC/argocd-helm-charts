@@ -1,0 +1,7 @@
+apiVersion: v2
+name: argocd-scripts
+description:
+  Ingest ArgoCD application data into JupiterOne.
+type: application
+version: 0.0.1
+appVersion: '0.0.1'
