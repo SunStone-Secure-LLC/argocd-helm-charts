@@ -2,7 +2,7 @@
 ########### General ############
 ################################
 image:
-  repository: sunstonesecure/argocd-scripts
+  repository: sunstonesecurellc/argocd-scripts
   pullPolicy: Always
   tag: "main"
 
