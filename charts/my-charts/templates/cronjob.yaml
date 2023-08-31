@@ -41,16 +41,11 @@ spec:
                     secretKeyRef:
                       name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
                       key: {{ .Values.existingSecret.argoURLSecretKey | default "argoURL" }}
-                - name: ARGO_USER
+                - name: ARGO_TOKEN
                   valueFrom:
                     secretKeyRef:
                       name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
-                      key: {{ .Values.existingSecret.argoUserSecretKey | default "argoUser" }}
-                - name: ARGO_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ (tpl .Values.existingSecret.name .) | default (include "argocd-scripts.fullname" .) }}
-                      key: {{ .Values.existingSecret.argoPasswordSecretKey | default "argoPassword" }}
+                      key: {{ .Values.existingSecret.argoTokenSecretKey | default "argoToken" }}
                 - name: JUPITERONE_ACCOUNT_ID
                   valueFrom:
                     secretKeyRef:
@@ -65,7 +60,6 @@ spec:
                   value: 'false'
               args:
                 - "$(ARGO_URL)"
-                - "$(ARGO_USER)"
-                - "$(ARGO_PASSWORD)" 
+                - "$(ARGO_TOKEN)"
                 - "$(JUPITERONE_ACCOUNT_ID)"
                 - "$(JUPITERONE_API_KEY)" 

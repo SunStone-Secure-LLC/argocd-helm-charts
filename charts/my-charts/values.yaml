@@ -13,8 +13,7 @@ cronjob:
 
 secrets:
   argoURL:
-  argoUser:
-  argoPassword:
+  argoToken:
   jupiteroneAccountId:
   jupiteroneApiKey:
   
@@ -24,8 +23,7 @@ existingSecret:
   # name of the secret. Can be templated.
   name: ""
   argoURLSecretKey: argoURL
-  argoUserSecretKey: argoUser
-  argoPasswordSecretKey: argoPassword
+  argoTokenSecretKey: argoToken
   jupiteroneAccountIdSecretKey: jupiteroneAccountId
   jupiteroneApiKeySecretKey: jupiteroneApiKey
   #jupiteroneIntegrationInstanceIdSecretKey: jupiteroneIntegrationInstanceId
